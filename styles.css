@@ -13,3 +13,194 @@ Secondary Colors:
 - Pink:       #F16061
 
 */
+
+body {
+	background: #e8e8e8;
+	font-family: Arial, sans-serif;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	margin: 0;
+	cursor: none;
+}
+
+h1 {
+	font-size: 1.4rem;
+	margin-bottom: 4px;
+	font-weight: bold;
+	color: #111;
+}
+
+p.subtitle {
+	font-size: 0.75rem;
+	color: #555;
+	margin-bottom: 12px;
+}
+
+/* HUD */
+#hud {
+	display: flex;
+	gap: 30px;
+	margin-bottom: 8px;
+	font-size: 1rem;
+	font-weight: bold;
+	color: #222;
+}
+
+/* Game area */
+#game-wrap {
+	position: relative;
+	width: 520px;
+	height: 340px;
+	background: #cde;
+	border: 3px solid #333;
+	overflow: hidden;
+	cursor: none;
+}
+
+/* Cloud placeholder boxes */
+.cloud-box {
+	position: absolute;
+	background: #aab8cc;
+	border: 2px dashed #778;
+	border-radius: 6px;
+}
+#cl1 { width: 160px; height: 60px; top: 10px; left: 20px; }
+#cl2 { width: 120px; height: 50px; top: 6px; left: 210px; }
+#cl3 { width: 140px; height: 55px; top: 12px; right: 20px; }
+
+/* X marks inside cloud boxes */
+.cloud-box::before,
+.cloud-box::after {
+	content: '';
+	position: absolute;
+	background: #778;
+	width: 100%;
+	height: 2px;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+}
+.cloud-box::after {
+	width: 2px;
+	height: 100%;
+	top: 0;
+	left: 50%;
+	transform: none;
+}
+
+/* Rain background lines */
+.rain-line {
+	position: absolute;
+	width: 1px;
+	background: rgba(80, 120, 180, 0.35);
+	top: 0;
+}
+
+/* Drop — simple teardrop shape */
+.drop {
+	position: absolute;
+	width: 18px;
+	height: 24px;
+	pointer-events: none;
+}
+.drop svg { width: 100%; height: 100%; }
+
+/* Custom cursor — simple rectangle "catcher" */
+#cursor {
+	position: absolute;
+	width: 60px;
+	height: 12px;
+	background: #333;
+	border: 2px solid #111;
+	border-radius: 3px;
+	pointer-events: none;
+	transform: translate(-50%, -50%);
+	z-index: 50;
+}
+
+/* Floor line */
+#floor-line {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: #a33;
+}
+
+/* Floor flash */
+#floor-flash {
+	position: absolute;
+	bottom: 0; left: 0; right: 0;
+	height: 4px;
+	background: red;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Overlays */
+.overlay {
+	position: absolute; inset: 0;
+	background: rgba(220,230,240,0.92);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 20;
+	text-align: center;
+	padding: 20px;
+	border: 2px dashed #555;
+}
+.overlay h2 {
+	font-size: 1.5rem;
+	margin-bottom: 8px;
+	color: #111;
+}
+.overlay p {
+	font-size: 0.82rem;
+	color: #444;
+	margin-bottom: 16px;
+	max-width: 300px;
+	line-height: 1.5;
+}
+.btn {
+	background: #333;
+	color: #fff;
+	border: none;
+	font-family: Arial, sans-serif;
+	font-size: 0.95rem;
+	padding: 8px 24px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+.btn:hover { background: #555; }
+
+.stat-line {
+	font-size: 0.85rem;
+	color: #333;
+	margin-bottom: 10px;
+}
+
+/* Splash */
+.splash {
+	position: absolute;
+	pointer-events: none;
+	font-size: 0.7rem;
+	color: #336;
+	animation: fadeup 0.5s ease-out forwards;
+}
+@keyframes fadeup {
+	0%   { opacity: 1; transform: translateY(0); }
+	100% { opacity: 0; transform: translateY(-18px); }
+}
+
+/* Note below game */
+#note {
+	font-size: 0.7rem;
+	color: #777;
+	margin-top: 8px;
+	font-style: italic;
+}
