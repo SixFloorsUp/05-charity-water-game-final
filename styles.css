@@ -6,100 +6,104 @@ Primary Colors:
 
 Secondary Colors:
 - Light Blue: #8BD1CB
-- Green:      #4FCB53
-- Orange:     #FF902A
-- Red:        #F5402C
-- Dark Green: #159A48
-- Pink:       #F16061
+- White:      #FFFFFF
+- Black:      #000000
 
 */
 
 body {
-	background: #e8e8e8;
-	font-family: Arial, sans-serif;
+	background: #fff;
+	font-family: 'Avenir', Georgia, serif;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	min-height: 100vh;
 	margin: 0;
-	cursor: none;
+}
+
+footer {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+	margin-top: 24px;
+	padding: 12px 0;
+	background: #fff;
+	border-top: none;
+}
+footer img {
+	height: 50px;
+	margin-right: 12px;
+}
+footer a {
+	color: #2E9DF7;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 1rem;
+	margin: 0 6px;
+	transition: color 0.2s;
+}
+footer a:hover {
+	color: #FFC907;
 }
 
 h1 {
 	font-size: 1.4rem;
 	margin-bottom: 4px;
 	font-weight: bold;
-	color: #111;
+	color: #FFC907;
 }
 
-p.subtitle {
-	font-size: 0.75rem;
-	color: #555;
-	margin-bottom: 12px;
-}
-
-/* HUD */
 #hud {
 	display: flex;
 	gap: 30px;
 	margin-bottom: 8px;
 	font-size: 1rem;
 	font-weight: bold;
-	color: #222;
+	color: #2E9DF7;
 }
 
-/* Game area */
 #game-wrap {
 	position: relative;
 	width: 520px;
 	height: 340px;
-	background: #cde;
-	border: 3px solid #333;
+	background: linear-gradient(to bottom, #8BD1CB 0%, #FFFFFF 100%);
+	border: 3px solid #2E9DF7;
 	overflow: hidden;
 	cursor: none;
+	box-shadow: 0 4px 24px 0 rgba(46, 157, 247, 0.2), 0 1.5px 6px 0 rgba(46, 157, 247, 0.1);
 }
 
-/* Cloud placeholder boxes */
 .cloud-box {
 	position: absolute;
-	background: #aab8cc;
-	border: 2px dashed #778;
-	border-radius: 6px;
+	background: #FFFFFF;
+	border-radius: 50%;
+	box-shadow:
+		30px 0px 0px 0px #FFFFFF,
+		60px 10px 0px 0px #FFFFFF,
+		90px 0px 0px 0px #FFFFFF,
+		45px 20px 0px 0px #FFFFFF,
+		70px 18px 0px 0px #FFFFFF;
 }
-#cl1 { width: 160px; height: 60px; top: 10px; left: 20px; }
-#cl2 { width: 120px; height: 50px; top: 6px; left: 210px; }
-#cl3 { width: 140px; height: 55px; top: 12px; right: 20px; }
-
-/* X marks inside cloud boxes */
-.cloud-box::before,
-.cloud-box::after {
-	content: '';
-	position: absolute;
-	background: #778;
-	width: 100%;
-	height: 2px;
-	top: 50%;
-	left: 0;
-	transform: translateY(-50%);
+#cl1 {
+	width: 100px; height: 38px; top: 10px; left: 20px;
 }
-.cloud-box::after {
-	width: 2px;
-	height: 100%;
-	top: 0;
-	left: 50%;
-	transform: none;
+#cl2 {
+	width: 75px; height: 28px; top: 6px; left: 210px;
+}
+#cl3 {
+	width: 90px; height: 34px; top: 12px; right: 20px;
 }
 
-/* Rain background lines */
 .rain-line {
 	position: absolute;
 	width: 1px;
-	background: rgba(80, 120, 180, 0.35);
+	background: rgba(46, 157, 247, 0.25);
 	top: 0;
 }
 
-/* Drop — simple teardrop shape */
 .drop {
 	position: absolute;
 	width: 18px;
@@ -108,43 +112,41 @@ p.subtitle {
 }
 .drop svg { width: 100%; height: 100%; }
 
-/* Custom cursor — simple rectangle "catcher" */
 #cursor {
 	position: absolute;
-	width: 60px;
-	height: 12px;
-	background: #333;
-	border: 2px solid #111;
-	border-radius: 3px;
+	width: 50px;
+	height: 50px;
 	pointer-events: none;
 	transform: translate(-50%, -50%);
 	z-index: 50;
 }
+#cursor img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
 
-/* Floor line */
 #floor-line {
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	height: 3px;
-	background: #a33;
+	background: #2E9DF7;
 }
 
-/* Floor flash */
 #floor-flash {
 	position: absolute;
 	bottom: 0; left: 0; right: 0;
 	height: 4px;
-	background: red;
+	background: #FFC907;
 	opacity: 0;
 	pointer-events: none;
 }
 
-/* Overlays */
 .overlay {
 	position: absolute; inset: 0;
-	background: rgba(220,230,240,0.92);
+	background: rgba(255, 255, 255, 0.95);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -152,55 +154,118 @@ p.subtitle {
 	z-index: 20;
 	text-align: center;
 	padding: 20px;
-	border: 2px dashed #555;
+	border: 3px solid #2E9DF7;
 }
 .overlay h2 {
 	font-size: 1.5rem;
 	margin-bottom: 8px;
-	color: #111;
+	color: #FFC907;
 }
 .overlay p {
 	font-size: 0.82rem;
-	color: #444;
+	color: #000;
 	margin-bottom: 16px;
 	max-width: 300px;
 	line-height: 1.5;
 }
 .btn {
-	background: #333;
+	background: #2E9DF7;
 	color: #fff;
 	border: none;
-	font-family: Arial, sans-serif;
+	font-family: 'Avenir', Georgia, serif;
 	font-size: 0.95rem;
 	padding: 8px 24px;
 	cursor: pointer;
 	border-radius: 4px;
+	transition: background 0.2s;
 }
-.btn:hover { background: #555; }
+.btn:hover { background: #FFC907; color: #000; }
+
+.btn-secondary {
+	background: #8BD1CB;
+	color: #000;
+}
+.btn-secondary:hover {
+	background: #FFC907;
+}
+
+.button-group {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	margin-top: 8px;
+}
+
+.difficulty-selector {
+	margin: 16px 0;
+}
+.difficulty-label {
+	font-size: 0.9rem;
+	font-weight: bold;
+	color: #2E9DF7;
+	margin-bottom: 8px;
+}
+.difficulty-buttons {
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+}
+.difficulty-btn {
+	background: #FFFFFF;
+	color: #2E9DF7;
+	border: 2px solid #8BD1CB;
+	font-family: 'Avenir', Georgia, serif;
+	font-size: 0.85rem;
+	padding: 6px 16px;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: all 0.2s;
+}
+.difficulty-btn:hover {
+	background: #8BD1CB;
+	color: #000;
+	border-color: #8BD1CB;
+}
+.difficulty-btn.active {
+	background: #FFC907;
+	color: #000;
+	border-color: #FFC907;
+	font-weight: bold;
+}
 
 .stat-line {
 	font-size: 0.85rem;
-	color: #333;
+	color: #2E9DF7;
 	margin-bottom: 10px;
+	font-weight: bold;
 }
 
-/* Splash */
 .splash {
 	position: absolute;
 	pointer-events: none;
-	font-size: 0.7rem;
-	color: #336;
+	font-size: 0.85rem;
+	color: #FFC907;
+	font-weight: bold;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 	animation: fadeup 0.5s ease-out forwards;
 }
+
+.milestone-splash {
+	font-size: 1.2rem;
+	color: #2E9DF7;
+	width: 200px;
+	text-align: center;
+	animation: milestonefade 1.5s ease-out forwards;
+}
+
 @keyframes fadeup {
 	0%   { opacity: 1; transform: translateY(0); }
 	100% { opacity: 0; transform: translateY(-18px); }
 }
 
-/* Note below game */
-#note {
-	font-size: 0.7rem;
-	color: #777;
-	margin-top: 8px;
-	font-style: italic;
+@keyframes milestonefade {
+	0%   { opacity: 0; transform: scale(0.5); }
+	20%  { opacity: 1; transform: scale(1.1); }
+	80%  { opacity: 1; transform: scale(1); }
+	100% { opacity: 0; transform: scale(0.9); }
 }

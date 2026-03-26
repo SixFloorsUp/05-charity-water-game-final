@@ -1,7 +1,3 @@
-// Raindrop Catcher Game Logic
-// All code is now in script.js for clarity and learning.
-
-// Rain background lines
 const rainBg = document.getElementById('rain-bg');
 for (let i = 0; i < 30; i++) {
 	const l = document.createElement('div');
@@ -10,12 +6,10 @@ for (let i = 0; i < 30; i++) {
 	rainBg.appendChild(l);
 }
 
-// Game area and constants
 const WRAP = document.getElementById('game-wrap');
 const W = 520, H = 340;
-const GOAL = 1000;
+let currentGoal = 500;
 
-// Game state variables
 let score = 0, lives = 3, caught = 0;
 let drops = [];
 let running = false;
@@ -24,10 +18,22 @@ let lastTime = null;
 let spawnTimeout = null;
 let spawnDelay = 1100;
 
-// Cursor variables
+const MILESTONES = [
+	{ percent: 0.25, message: "Great start! Keep going!", shown: false },
+	{ percent: 0.50, message: "Halfway there!", shown: false },
+	{ percent: 0.75, message: "Almost at your goal!", shown: false }
+];
+
+let difficulty = 'normal';
+const DIFFICULTY_SETTINGS = {
+	easy: { speedBase: 50, speedRandom: 40, speedIncrease: 30, spawnBase: 1400, spawnMin: 700, goal: 250 },
+	normal: { speedBase: 70, speedRandom: 60, speedIncrease: 50, spawnBase: 1100, spawnMin: 450, goal: 500 },
+	hard: { speedBase: 100, speedRandom: 80, speedIncrease: 70, spawnBase: 850, spawnMin: 300, goal: 1000 }
+};
+
 const cur = document.getElementById('cursor');
 let mx = -200, my = -200;
-// Move the custom cursor with the mouse
+
 WRAP.addEventListener('mousemove', e => {
 	const r = WRAP.getBoundingClientRect();
 	mx = e.clientX - r.left;
@@ -35,63 +41,67 @@ WRAP.addEventListener('mousemove', e => {
 	cur.style.left = mx + 'px';
 	cur.style.top  = my + 'px';
 });
-// Hide cursor when mouse leaves game area
+
 WRAP.addEventListener('mouseleave', () => { mx = -200; my = -200; });
 
-// Create a raindrop element
 function makeDrop() {
 	const el = document.createElement('div');
 	el.className = 'drop';
 	el.innerHTML = `<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg">
 		<path d="M9 1 C9 1 2 10 2 15 A7 7 0 0 0 16 15 C16 10 9 1 9 1Z"
-			fill="#5599cc" stroke="#336699" stroke-width="1"/>
+			fill="#2E9DF7" stroke="#8BD1CB" stroke-width="1.5"/>
 	</svg>`;
 	return el;
 }
 
-// Spawn a new raindrop
 function spawnDrop() {
 	if (!running) return;
 	const el = makeDrop();
 	const x = 16 + Math.random() * (W - 40);
-	// Speed increases as score increases
-	const speed = 70 + Math.random() * 60 + (score / GOAL) * 50;
+	const settings = DIFFICULTY_SETTINGS[difficulty];
+	const speed = settings.speedBase + Math.random() * settings.speedRandom + (score / currentGoal) * settings.speedIncrease;
 	const drop = { el, x, y: -26, speed };
 	el.style.left = x + 'px';
 	el.style.top = '-26px';
 	WRAP.appendChild(el);
 	drops.push(drop);
-	// Drops spawn faster as score increases
-	spawnDelay = Math.max(450, 1100 - (score / GOAL) * 600);
+	const spawnReduction = (score / currentGoal) * (settings.spawnBase - settings.spawnMin);
+	spawnDelay = Math.max(settings.spawnMin, settings.spawnBase - spawnReduction);
 	spawnTimeout = setTimeout(spawnDrop, spawnDelay);
 }
 
-// Update the score and lives display
 function updateHUD() {
 	document.getElementById('score-val').textContent = score;
 	const hearts = ['❤️','❤️','❤️'].map((h,i) => i < lives ? h : '🖤').join('');
 	document.getElementById('lives-val').textContent = hearts;
+	document.getElementById('goal-val').textContent = currentGoal;
 }
 
-// Show a splash text (like '+25' or 'miss!')
-function showSplash(x, y, text) {
+function showSplash(x, y, text, isMilestone = false) {
 	const s = document.createElement('div');
-	s.className = 'splash';
+	s.className = isMilestone ? 'splash milestone-splash' : 'splash';
 	s.textContent = text;
 	s.style.left = x + 'px';
 	s.style.top  = y + 'px';
 	WRAP.appendChild(s);
-	setTimeout(() => s.remove(), 550);
+	setTimeout(() => s.remove(), isMilestone ? 1500 : 550);
 }
 
-// Flash the floor when a drop is missed
+function checkMilestones() {
+	MILESTONES.forEach(milestone => {
+		if (!milestone.shown && score >= currentGoal * milestone.percent) {
+			milestone.shown = true;
+			showSplash(W / 2 - 50, H / 2, milestone.message, true);
+		}
+	});
+}
+
 function flashFloor() {
 	const f = document.getElementById('floor-flash');
 	f.style.opacity = '1';
 	setTimeout(() => f.style.opacity = '0', 200);
 }
 
-// Main game loop
 function loop(ts) {
 	if (!running) return;
 	if (!lastTime) lastTime = ts;
@@ -103,11 +113,10 @@ function loop(ts) {
 		d.y += d.speed * dt;
 		d.el.style.top = d.y + 'px';
 
-		// Check if the cursor catches the drop
 		const dropCX = d.x + 9;
 		const dropCY = d.y + 12;
-		const withinX = dropCX > mx - 36 && dropCX < mx + 36;
-		const withinY = Math.abs(dropCY - my) < 20;
+		const withinX = dropCX > mx - 20 && dropCX < mx + 20;
+		const withinY = dropCY > my - 15 && dropCY < my + 20;
 
 		if (withinX && withinY) {
 			score += 25;
@@ -116,11 +125,11 @@ function loop(ts) {
 			d.el.remove();
 			drops.splice(i, 1);
 			updateHUD();
-			if (score >= GOAL) { endGame('win'); return; }
+			checkMilestones();
+			if (score >= currentGoal) { endGame('win'); return; }
 			continue;
 		}
 
-		// If drop hits the floor
 		if (d.y > H) {
 			lives--;
 			flashFloor();
@@ -135,8 +144,8 @@ function loop(ts) {
 	animId = requestAnimationFrame(loop);
 }
 
-// Start the game
 function startGame() {
+	MILESTONES.forEach(m => m.shown = false);
 	document.getElementById('start-overlay').style.display = 'none';
 	running = true;
 	lastTime = null;
@@ -144,7 +153,6 @@ function startGame() {
 	animId = requestAnimationFrame(loop);
 }
 
-// End the game (win or lose)
 function endGame(type) {
 	running = false;
 	clearTimeout(spawnTimeout);
@@ -160,21 +168,46 @@ function endGame(type) {
 	}
 }
 
-// Reset the game to play again
-function resetGame() {
+function resetState() {
 	drops.forEach(d => d.el.remove());
 	drops = [];
 	score = 0; lives = 3; caught = 0;
 	spawnDelay = 1100;
 	lastTime = null;
+	MILESTONES.forEach(m => m.shown = false);
 	document.getElementById('gameover-overlay').style.display = 'none';
 	document.getElementById('win-overlay').style.display = 'none';
 	updateHUD();
+}
+
+function resetGame() {
+	resetState();
 	running = true;
 	spawnDrop();
 	animId = requestAnimationFrame(loop);
 }
 
-// Expose startGame and resetGame to HTML
+function backToMenu() {
+	resetState();
+	document.getElementById('start-overlay').style.display = 'flex';
+	running = false;
+}
+
+function selectDifficulty(level) {
+	difficulty = level;
+	currentGoal = DIFFICULTY_SETTINGS[level].goal;
+	document.getElementById('goal-val').textContent = currentGoal;
+	const buttons = document.querySelectorAll('.difficulty-btn');
+	buttons.forEach(btn => {
+		if (btn.dataset.difficulty === level) {
+			btn.classList.add('active');
+		} else {
+			btn.classList.remove('active');
+		}
+	});
+}
+
 window.startGame = startGame;
 window.resetGame = resetGame;
+window.backToMenu = backToMenu;
+window.selectDifficulty = selectDifficulty;

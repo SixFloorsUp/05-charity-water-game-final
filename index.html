@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Raindrop Catcher – Prototype</title>
+<title>Raindrop Catcher</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,49 +12,64 @@
 <div id="hud">
   <span>Score: <span id="score-val">0</span></span>
   <span>Lives: <span id="lives-val">❤️❤️❤️</span></span>
-  <span>Goal: 1000</span>
+  <span>Goal: <span id="goal-val">500</span></span>
 </div>
 
 <div id="game-wrap">
-  <!-- Sky / background -->
   <div id="rain-bg"></div>
 
-  <!-- Placeholder cloud boxes -->
   <div class="cloud-box" id="cl1"></div>
   <div class="cloud-box" id="cl2"></div>
   <div class="cloud-box" id="cl3"></div>
 
-  <!-- Floor -->
   <div id="floor-line"></div>
   <div id="floor-flash"></div>
 
-  <!-- Cursor catcher bar -->
-  <div id="cursor"></div>
+  <div id="cursor">
+    <img src="img/water-can-transparent.png" alt="water can">
+  </div>
 
-  <!-- Start -->
   <div class="overlay" id="start-overlay">
     <h2>Raindrop Catcher</h2>
     <p>Move your mouse to catch falling raindrops.<br>
-    Miss 3 and it's game over. Reach 1000 to win!</p>
+    Miss 3 and it's game over. Reach your goal to win!</p>
+    <div class="difficulty-selector">
+      <p class="difficulty-label">Choose Difficulty:</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn" data-difficulty="easy" onclick="selectDifficulty('easy')">Easy</button>
+        <button class="difficulty-btn active" data-difficulty="normal" onclick="selectDifficulty('normal')">Normal</button>
+        <button class="difficulty-btn" data-difficulty="hard" onclick="selectDifficulty('hard')">Hard</button>
+      </div>
+    </div>
     <button class="btn" onclick="startGame()">Start</button>
   </div>
 
-  <!-- Game Over -->
   <div class="overlay" id="gameover-overlay" style="display:none;">
     <h2>Game Over</h2>
     <p class="stat-line">Final Score: <strong id="final-score">0</strong> &nbsp;|&nbsp; Caught: <strong id="final-caught">0</strong></p>
     <p>Three drops hit the floor. Try again!</p>
-    <button class="btn" onclick="resetGame()">Play Again</button>
+    <div class="button-group">
+      <button class="btn" onclick="resetGame()">Try Again</button>
+      <button class="btn btn-secondary" onclick="backToMenu()">Change Difficulty</button>
+    </div>
   </div>
 
-  <!-- Win -->
   <div class="overlay" id="win-overlay" style="display:none;">
     <h2>You Win! 🎉</h2>
     <p class="stat-line">Score: <strong id="win-score">0</strong> &nbsp;|&nbsp; Caught: <strong id="win-caught">0</strong></p>
-    <p>You hit the 1000 point goal!</p>
-    <button class="btn" onclick="resetGame()">Play Again</button>
+    <p>You reached your goal! Amazing work!</p>
+    <div class="button-group">
+      <button class="btn" onclick="resetGame()">Play Again</button>
+      <button class="btn btn-secondary" onclick="backToMenu()">Change Difficulty</button>
+    </div>
   </div>
 </div>
+
+<footer>
+  <img src="img/cw_horizontal_white.png" alt="charity: water supporter" id="cw-logo">
+  <a href="https://www.charitywater.org/donate/" id="donate-link" target="_blank">Donate</a>
+  <a href="https://www.charitywater.org/about" id="about-link" target="_blank">About Us</a>
+</footer>
 
 <script src="script.js"></script>
 </body>
