@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Raindrop Catcher – Prototype</title>
+<style>
+  body {
+    background: #e8e8e8;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    cursor: none;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+    font-weight: bold;
+    color: #111;
+  }
+
+  p.subtitle {
+    font-size: 0.75rem;
+    color: #555;
+    margin-bottom: 12px;
+  }
+
+  /* HUD */
+  #hud {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #222;
+  }
+
+  /* Game area */
+  #game-wrap {
+    position: relative;
+    width: 520px;
+    height: 340px;
+    background: #cde;
+    border: 3px solid #333;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* Cloud placeholder boxes */
+  .cloud-box {
+    position: absolute;
+    background: #aab8cc;
+    border: 2px dashed #778;
+    border-radius: 6px;
+  }
+  #cl1 { width: 160px; height: 60px; top: 10px; left: 20px; }
+  #cl2 { width: 120px; height: 50px; top: 6px; left: 210px; }
+  #cl3 { width: 140px; height: 55px; top: 12px; right: 20px; }
+
+  /* X marks inside cloud boxes */
+  .cloud-box::before,
+  .cloud-box::after {
+    content: '';
+    position: absolute;
+    background: #778;
+    width: 100%;
+    height: 2px;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
+  .cloud-box::after {
+    width: 2px;
+    height: 100%;
+    top: 0;
+    left: 50%;
+    transform: none;
+  }
+
+  /* Rain background lines */
+  .rain-line {
+    position: absolute;
+    width: 1px;
+    background: rgba(80, 120, 180, 0.35);
+    top: 0;
+  }
+
+  /* Drop — simple teardrop shape */
+  .drop {
+    position: absolute;
+    width: 18px;
+    height: 24px;
+    pointer-events: none;
+  }
+  .drop svg { width: 100%; height: 100%; }
+
+  /* Custom cursor — simple rectangle "catcher" */
+  #cursor {
+    position: absolute;
+    width: 60px;
+    height: 12px;
+    background: #333;
+    border: 2px solid #111;
+    border-radius: 3px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+  }
+
+  /* Floor line */
+  #floor-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #a33;
+  }
+
+  /* Floor flash */
+  #floor-flash {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: red;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Overlays */
+  .overlay {
+    position: absolute; inset: 0;
+    background: rgba(220,230,240,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed #555;
+  }
+  .overlay h2 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: #111;
+  }
+  .overlay p {
+    font-size: 0.82rem;
+    color: #444;
+    margin-bottom: 16px;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .btn {
+    background: #333;
+    color: #fff;
+    border: none;
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
+    padding: 8px 24px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .btn:hover { background: #555; }
+
+  .stat-line {
+    font-size: 0.85rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  /* Splash */
+  .splash {
+    position: absolute;
+    pointer-events: none;
+    font-size: 0.7rem;
+    color: #336;
+    animation: fadeup 0.5s ease-out forwards;
+  }
+  @keyframes fadeup {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-18px); }
+  }
+
+  /* Note below game */
+  #note {
+    font-size: 0.7rem;
+    color: #777;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h1>Raindrop Catcher</h1>
+
+<div id="hud">
+  <span>Score: <span id="score-val">0</span></span>
+  <span>Lives: <span id="lives-val">❤️❤️❤️</span></span>
+  <span>Goal: 1000</span>
+</div>
+
+<div id="game-wrap">
+  <!-- Sky / background -->
+  <div id="rain-bg"></div>
+
+  <!-- Placeholder cloud boxes -->
+  <div class="cloud-box" id="cl1"></div>
+  <div class="cloud-box" id="cl2"></div>
+  <div class="cloud-box" id="cl3"></div>
+
+  <!-- Floor -->
+  <div id="floor-line"></div>
+  <div id="floor-flash"></div>
+
+  <!-- Cursor catcher bar -->
+  <div id="cursor"></div>
+
+  <!-- Start -->
+  <div class="overlay" id="start-overlay">
+    <h2>Raindrop Catcher</h2>
+    <p>Move your mouse to catch falling raindrops.<br>
+    Miss 3 and it's game over. Reach 1000 to win!</p>
+    <button class="btn" onclick="startGame()">Start</button>
+  </div>
+
+  <!-- Game Over -->
+  <div class="overlay" id="gameover-overlay" style="display:none;">
+    <h2>Game Over</h2>
+    <p class="stat-line">Final Score: <strong id="final-score">0</strong> &nbsp;|&nbsp; Caught: <strong id="final-caught">0</strong></p>
+    <p>Three drops hit the floor. Try again!</p>
+    <button class="btn" onclick="resetGame()">Play Again</button>
+  </div>
+
+  <!-- Win -->
+  <div class="overlay" id="win-overlay" style="display:none;">
+    <h2>You Win! 🎉</h2>
+    <p class="stat-line">Score: <strong id="win-score">0</strong> &nbsp;|&nbsp; Caught: <strong id="win-caught">0</strong></p>
+    <p>You hit the 1000 point goal!</p>
+    <button class="btn" onclick="resetGame()">Play Again</button>
+  </div>
+</div>
+
+<script>
+  // Rain bg lines
+  const rainBg = document.getElementById('rain-bg');
+  for (let i = 0; i < 30; i++) {
+    const l = document.createElement('div');
+    l.className = 'rain-line';
+    l.style.cssText = `left:${Math.random()*100}%; height:${20+Math.random()*40}px; opacity:${0.2+Math.random()*0.3};`;
+    rainBg.appendChild(l);
+  }
+
+  const WRAP = document.getElementById('game-wrap');
+  const W = 520, H = 340;
+  const GOAL = 1000;
+
+  let score = 0, lives = 3, caught = 0;
+  let drops = [];
+  let running = false;
+  let animId = null;
+  let lastTime = null;
+  let spawnTimeout = null;
+  let spawnDelay = 1100;
+
+  // Cursor
+  const cur = document.getElementById('cursor');
+  let mx = -200, my = -200;
+  WRAP.addEventListener('mousemove', e => {
+    const r = WRAP.getBoundingClientRect();
+    mx = e.clientX - r.left;
+    my = e.clientY - r.top;
+    cur.style.left = mx + 'px';
+    cur.style.top  = my + 'px';
+  });
+  WRAP.addEventListener('mouseleave', () => { mx = -200; my = -200; });
+
+  // Make a drop element
+  function makeDrop() {
+    const el = document.createElement('div');
+    el.className = 'drop';
+    el.innerHTML = `<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 1 C9 1 2 10 2 15 A7 7 0 0 0 16 15 C16 10 9 1 9 1Z"
+        fill="#5599cc" stroke="#336699" stroke-width="1"/>
+    </svg>`;
+    return el;
+  }
+
+  function spawnDrop() {
+    if (!running) return;
+    const el = makeDrop();
+    const x = 16 + Math.random() * (W - 40);
+    const speed = 70 + Math.random() * 60 + (score / GOAL) * 50;
+    const drop = { el, x, y: -26, speed };
+    el.style.left = x + 'px';
+    el.style.top = '-26px';
+    WRAP.appendChild(el);
+    drops.push(drop);
+    spawnDelay = Math.max(450, 1100 - (score / GOAL) * 600);
+    spawnTimeout = setTimeout(spawnDrop, spawnDelay);
+  }
+
+  function updateHUD() {
+    document.getElementById('score-val').textContent = score;
+    const hearts = ['❤️','❤️','❤️'].map((h,i) => i < lives ? h : '🖤').join('');
+    document.getElementById('lives-val').textContent = hearts;
+  }
+
+  function showSplash(x, y, text) {
+    const s = document.createElement('div');
+    s.className = 'splash';
+    s.textContent = text;
+    s.style.left = x + 'px';
+    s.style.top  = y + 'px';
+    WRAP.appendChild(s);
+    setTimeout(() => s.remove(), 550);
+  }
+
+  function flashFloor() {
+    const f = document.getElementById('floor-flash');
+    f.style.opacity = '1';
+    setTimeout(() => f.style.opacity = '0', 200);
+  }
+
+  function loop(ts) {
+    if (!running) return;
+    if (!lastTime) lastTime = ts;
+    const dt = (ts - lastTime) / 1000;
+    lastTime = ts;
+
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      d.y += d.speed * dt;
+      d.el.style.top = d.y + 'px';
+
+      // catch check — cursor bar hits drop center
+      const dropCX = d.x + 9;
+      const dropCY = d.y + 12;
+      const withinX = dropCX > mx - 36 && dropCX < mx + 36;
+      const withinY = Math.abs(dropCY - my) < 20;
+
+      if (withinX && withinY) {
+        score += 25;
+        caught++;
+        showSplash(d.x, d.y, '+25');
+        d.el.remove();
+        drops.splice(i, 1);
+        updateHUD();
+        if (score >= GOAL) { endGame('win'); return; }
+        continue;
+      }
+
+      if (d.y > H) {
+        lives--;
+        flashFloor();
+        showSplash(d.x, H - 30, 'miss!');
+        d.el.remove();
+        drops.splice(i, 1);
+        updateHUD();
+        if (lives <= 0) { endGame('lose'); return; }
+      }
+    }
+
+    animId = requestAnimationFrame(loop);
+  }
+
+  function startGame() {
+    document.getElementById('start-overlay').style.display = 'none';
+    running = true;
+    lastTime = null;
+    spawnDrop();
+    animId = requestAnimationFrame(loop);
+  }
+
+  function endGame(type) {
+    running = false;
+    clearTimeout(spawnTimeout);
+    cancelAnimationFrame(animId);
+    if (type === 'win') {
+      document.getElementById('win-score').textContent = score;
+      document.getElementById('win-caught').textContent = caught;
+      document.getElementById('win-overlay').style.display = 'flex';
+    } else {
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('final-caught').textContent = caught;
+      document.getElementById('gameover-overlay').style.display = 'flex';
+    }
+  }
+
+  function resetGame() {
+    drops.forEach(d => d.el.remove());
+    drops = [];
+    score = 0; lives = 3; caught = 0;
+    spawnDelay = 1100;
+    lastTime = null;
+    document.getElementById('gameover-overlay').style.display = 'none';
+    document.getElementById('win-overlay').style.display = 'none';
+    updateHUD();
+    running = true;
+    spawnDrop();
+    animId = requestAnimationFrame(loop);
+  }
+</script>
+</body>
+</html>
